@@ -63,7 +63,8 @@ class Window(Frame):
         self.album_list = Listbox(dest_frame)
         self.album_list.grid(row=1, column=0, columnspan=2,
                              padx=10, pady=10, sticky='nswe')
-        self.album_list.bind('<<ListboxSelect>>', self.update_track_list)
+        self.album_list.bind('<<ListboxSelect>>',
+                             lambda _: self.update_track_list())
         self.track_list = Listbox(dest_frame)
         self.track_list.grid(row=1, column=2,
                              padx=10, pady=10, sticky='nswe')
@@ -102,24 +103,27 @@ class Window(Frame):
         Show all albums on the TonUino storage.
         '''
         self.album_list.delete(0, END)
-        albums = self.db.get_albums()
-        print(albums)
-        for idx, album in enumerate(albums):
+        for idx, album in enumerate(self.db.albums):
             print('album: ', album, 'type', type(album))
             self.album_list.insert(idx, f'{idx + 1:02d} - ' + album.title)
+        self.update_track_list()
 
-    def update_track_list(self, event):
+    @property
+    def album(self):
+        selected = self.album_list.curselection()
+        if selected and self.db.albums:
+            return self.db.albums[selected[0]]
+        else:
+            return None
+
+    def update_track_list(self):
         '''
         Show all tracks in album.
         '''
-        idx = self.album_list.curselection()[0]
-        album_dir = self.dest_dir / f'{idx + 1:02d}'
-        track_files = list(album_dir.glob('*.mp3'))
         self.track_list.delete(0, END)
-        for idx, file in enumerate(track_files):
-            title = ID3(file)['TIT2'].text[0]
-            self.track_list.insert(idx, f'{idx + 1:02d} - ' + title)
-        
+        if self.album:
+            for idx, track in enumerate(self.album.tracks):
+                self.track_list.insert(idx, f'{idx + 1:03d} - ' + track.title)
 
     def copy_files(self, new_num=None):
         '''
