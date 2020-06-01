@@ -66,7 +66,7 @@ class Track(Base):
 class TrackDataBase():
 
     def __init__(self, path):
-        self.engine = create_engine('sqlite:///' + path + 'tracks.db')
+        self.engine = create_engine('sqlite:///' + path + '/tracks.db')
         self.path = Path(path)
         Base.metadata.create_all(self.engine)
         Session = sessionmaker(self.engine)
@@ -119,4 +119,4 @@ class TrackDataBase():
 
 
 if __name__ == '__main__':
-    db = TrackDataBase(r'')
+    db = TrackDataBase(r'.')

@@ -69,8 +69,9 @@ class Window(Frame):
         self.track_list.grid(row=1, column=2,
                              padx=10, pady=10, sticky='nswe')
 
-        cp_btn = Button(self, text='Copy Files', command=self.copy_files)
-        cp_btn.grid(row=1, column=0, padx=10, pady=10, ipadx=40)
+        cp_all_btn = Button(self, text='Copy All',
+                            command=self.copy_all_files)
+        cp_all_btn.grid(row=1, column=0, padx=10, pady=10, ipadx=40)
         self.progress_bar = Progressbar(self, orient=HORIZONTAL, 
                                         length=100, mode='determinate')
         self.progress_bar.grid(row=1, column=1,
@@ -125,7 +126,7 @@ class Window(Frame):
             for idx, track in enumerate(self.album.tracks):
                 self.track_list.insert(idx, f'{idx + 1:03d} - ' + track.title)
 
-    def copy_files(self, new_num=None):
+    def copy_all_files(self, new_num=None):
         '''
         Copies all files from the source file list to the destination directory
         in a new sub folder.
@@ -140,19 +141,26 @@ class Window(Frame):
         if not new_dir.exists():
             print('creating new directory: ', new_dir)
             new_dir.mkdir()
-        self.progress_bar['value'] = 0
-        self.update_idletasks()
-        for num, file in enumerate(self.src_files):
-            new_name = f'{num + 1:03}.mp3'
-            print(f'copying {file} to {new_name}...')
-            dest = new_dir / new_name
-            dest.write_bytes(file.read_bytes())
-            self.progress_bar['value'] = (num + 1) / len(self.src_files) * 100
-            self.update_idletasks()
+        self.copy_files(new_dir)
         self.db.add_album(
             self.src_dir.parts[-1], new_num)
         self.update_album_list()
 
+    def copy_files(self, new_dir, num=0, files=None):
+        if files is None:
+            files = self.src_files
+        if not num:
+            self.progress_bar['value'] = num
+            self.update_idletasks()
+        file = files[num]
+        new_name = f'{num + 1:03}.mp3'
+        print(f'copying {file} to {new_name}...')
+        dest = new_dir / new_name
+        dest.write_bytes(file.read_bytes())
+        self.progress_bar['value'] = (num + 1) / len(self.src_files) * 100
+        self.update_idletasks()
+        if num + 1 < len(files):
+            self.after_idle(lambda: self.copy_files(new_dir, num+1, files))
 
 if __name__ == '__main__':
     root = Tk()
