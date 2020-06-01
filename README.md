@@ -10,7 +10,6 @@ Currently it can:
 In the future it might be able to:
 
 * Delete files on the SD card and it will put new files in the empty directory first rahter than creating a new directory.
-* Add single files to a selected folder.
-* Read in already existing folders that have been created outside of this app - currently, this will lead to trouble.
+* Add single files to a selected folder (currently only entire folders can be transferred).
 * Program new RFID cards if the TonUino is connected via USB.
 * Have this project compiled to an executable.
