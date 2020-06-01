@@ -140,9 +140,9 @@ class Window(Frame):
         if not new_dir.exists():
             print('creating new directory: ', new_dir)
             new_dir.mkdir()
+        self.progress_bar['value'] = 0
+        self.update_idletasks()
         for num, file in enumerate(self.src_files):
-            self.progress_bar['value'] = 0
-            self.update_idletasks()
             new_name = f'{num + 1:03}.mp3'
             print(f'copying {file} to {new_name}...')
             dest = new_dir / new_name
